@@ -1,9 +1,8 @@
 import './style.css'
 import * as THREE from 'three';
-import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 const scene = new THREE.Scene();
-
+scene.background = new THREE.Color(0.5, 0.5, 0.5);
 //camera
 const cameraConfig = {
   fov: 75,
@@ -52,15 +51,10 @@ renderer.render(scene, camera);
 //   cursor.y = e.clientY / canvas.height - 0.5;
 // })
 //Controls
-let control = new FirstPersonControls(camera, canvas);
 let rotateControl = new OrbitControls(camera, canvas);
-let clock = new THREE.Clock();
+rotateControl.enableDamping = true;
 //Animation
 const tick = () => {
-  // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3;
-  // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3;
-  // camera.lookAt(group.position);
-  control.update(clock.getDelta());
   rotateControl.update();
   renderer.render(scene, camera);
   window.requestAnimationFrame(tick);
