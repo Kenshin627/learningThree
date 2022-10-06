@@ -37,22 +37,31 @@ const rendererOpts: THREE.WebGLRendererParameters = {
 const renderer = new THREE.WebGLRenderer(rendererOpts)
 
 renderer.setSize(cameraConfig.width, cameraConfig.height);
-
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
 
+//resize
+window.addEventListener("resize", (ev) => {
+  cameraConfig.width = window.innerWidth;
+  cameraConfig.height = window.innerHeight;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(cameraConfig.width, cameraConfig.height);
+})
 
-//event
-// const cursor = {
-//   x: 0,
-//   y: 0
-// }
-// canvas.addEventListener("mousemove", (e) => {
-//   cursor.x = e.clientX / canvas.width - 0.5;
-//   cursor.y = e.clientY / canvas.height - 0.5;
-// })
+//fullscreen
+window.addEventListener("dblclick", () => {
+  if (!document.fullscreenElement) {
+    canvas.requestFullscreen();
+  }else {
+    document.exitFullscreen();
+  }
+})
+
 //Controls
 let rotateControl = new OrbitControls(camera, canvas);
 rotateControl.enableDamping = true;
+
 //Animation
 const tick = () => {
   rotateControl.update();
