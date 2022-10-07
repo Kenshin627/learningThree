@@ -145,4 +145,23 @@ const tick = () => {
   window.requestAnimationFrame(tick);
 }
 
+//texture
+const textLoader = new THREE.TextureLoader();
+const colorTexture = await textLoader.loadAsync('/assets/textures/door/color.jpg');
+colorTexture.repeat.x = 2;
+colorTexture.repeat.y = 2;
+colorTexture.center = new THREE.Vector2(0.5 ,0.5);
+colorTexture.rotation = Math.PI/ 4;
+
+colorTexture.wrapS = THREE.RepeatWrapping;
+colorTexture.wrapT = THREE.RepeatWrapping;
+const alphaTexture = await textLoader.loadAsync("/assets/textures/door/alpha.jpg")
+
+const heightTexture = await textLoader.loadAsync("/assets/textures/door/height.jpg")
+
+cube1.material = new THREE.MeshBasicMaterial({
+  map: colorTexture,
+  alphaMap: alphaTexture
+})
+
 tick();
