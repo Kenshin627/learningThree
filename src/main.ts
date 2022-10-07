@@ -18,12 +18,41 @@ scene.add(camera);
 
 //group
 const group = new THREE.Group();
-let cube1 = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({
-  color: "#0FFAAA"
+let boxGeometry = new THREE.BoxGeometry(1, 1, 1, 3, 3, 3);
+let cube1 = new THREE.Mesh(boxGeometry, new THREE.MeshBasicMaterial({
+  color: "#0FFAAA",
+  wireframe: true
 }))
+
+let geometry = new THREE.BufferGeometry();
+const vertices = new Float32Array([
+  0,0,0,
+  0,1,0,
+  1,0,0
+])
+geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+const geometry1 = new THREE.BufferGeometry();
+const count = 50;
+const positionArray = new Float32Array(count * 3 * 3);
+for (let i = 0; i < positionArray.length; i++) {
+  positionArray[i] = (Math.random() - 0.5) * 1;
+}
+
+const positionAttribute = new THREE.BufferAttribute(positionArray, 3);
+geometry1.setAttribute("position", positionAttribute);
+
+const mesh1 = new THREE.Mesh(geometry1, new THREE.MeshBasicMaterial({
+  color: "#FF0000",
+  wireframe: true
+}))
+
 camera.lookAt(group.position);
 scene.add(
-  group.add(cube1)
+  group.add(cube1).add(new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+    color: '#FF0000',
+    wireframe: true
+  }))).add(mesh1)
 );
 
 
