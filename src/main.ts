@@ -1,6 +1,9 @@
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import gsap from 'gsap';
+import * as dat from 'dat.gui';
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0.5, 0.5, 0.5);
 //camera
@@ -16,12 +19,21 @@ camera.position.z = 2;
 
 scene.add(camera);
 
+//GUI Parameters
+const parameters = {
+  color: 0xff0000,
+  spin: () => {
+    console.log(`spin`);
+    gsap.to(cube1.rotation, { duration: 1, y: cube1.rotation.y + Math.PI })
+  }
+}
+
 //group
 const group = new THREE.Group();
-let boxGeometry = new THREE.BoxGeometry(1, 1, 1, 3, 3, 3);
+let boxGeometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
 let cube1 = new THREE.Mesh(boxGeometry, new THREE.MeshBasicMaterial({
-  color: "#0FFAAA",
-  wireframe: true
+  color: parameters.color,
+  wireframe: false
 }))
 
 let geometry = new THREE.BufferGeometry();
@@ -49,10 +61,7 @@ const mesh1 = new THREE.Mesh(geometry1, new THREE.MeshBasicMaterial({
 
 camera.lookAt(group.position);
 scene.add(
-  group.add(cube1).add(new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-    color: '#FF0000',
-    wireframe: true
-  }))).add(mesh1)
+  group.add(cube1)
 );
 
 
@@ -90,6 +99,44 @@ window.addEventListener("dblclick", () => {
 //Controls
 let rotateControl = new OrbitControls(camera, canvas);
 rotateControl.enableDamping = true;
+
+//GUI
+const gui  = new dat.GUI({closed: true, width: 400});
+// gui.hide();
+gui.width = 500
+gui.addFolder("Box");
+
+
+
+gui
+.add(cube1.position, "x")
+.min(-3).max(3)
+.step(0.005)
+.name("horizontal");
+
+gui
+.add(cube1.position,"y")
+.min(-3)
+.max(3)
+.step(0.005)
+.name("elevation");
+
+gui
+.add(cube1, "visible")
+.name("visible")
+
+gui
+.add(cube1.material, "wireframe")
+.name("启用线框模式")
+
+gui
+.addColor(parameters,"color")
+.onChange(() => {
+  cube1.material.color.set(parameters.color);
+});
+
+gui
+.add(parameters,"spin");
 
 //Animation
 const tick = () => {
