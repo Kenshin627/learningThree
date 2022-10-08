@@ -61,7 +61,8 @@ const mesh1 = new THREE.Mesh(geometry1, new THREE.MeshBasicMaterial({
 
 camera.lookAt(group.position);
 scene.add(
-  group.add(cube1)
+  // group.add(cube1)
+  group
 );
 
 
@@ -138,12 +139,7 @@ gui
 gui
 .add(parameters,"spin");
 
-//Animation
-const tick = () => {
-  rotateControl.update();
-  renderer.render(scene, camera);
-  window.requestAnimationFrame(tick);
-}
+
 
 //texture
 const textLoader = new THREE.TextureLoader();
@@ -155,13 +151,79 @@ colorTexture.rotation = Math.PI/ 4;
 
 colorTexture.wrapS = THREE.RepeatWrapping;
 colorTexture.wrapT = THREE.RepeatWrapping;
-const alphaTexture = await textLoader.loadAsync("/assets/textures/door/alpha.jpg")
-
-const heightTexture = await textLoader.loadAsync("/assets/textures/door/height.jpg")
 
 cube1.material = new THREE.MeshBasicMaterial({
   map: colorTexture,
-  alphaMap: alphaTexture
+  side:THREE.DoubleSide
 })
+
+
+/**
+ * Textures
+ */
+ const baseTexture = await textLoader.loadAsync('/assets/textures/door/color.jpg');
+ const alphaTexture = await textLoader.loadAsync('/assets/textures/door/alpha.jpg');
+ const heightTexture = await textLoader.loadAsync('/assets/textures/door/height.jpg');
+ const metalnessTexture = await textLoader.loadAsync('/assets/textures/door/metalness.jpg');
+ const normalTexture = await textLoader.loadAsync('/assets/textures/door/normal.jpg');
+ const roughnessTexture = await textLoader.loadAsync('/assets/textures/door/roughness.jpg');
+ const ambientOcclusionTexture = await textLoader.loadAsync('/assets/textures/door/ambientOcclusion.jpg');
+
+ const matcapTexture = await textLoader.loadAsync('/assets/textures/matcaps/Green.png');
+
+ const gradientTexture = await textLoader.loadAsync('/assets/textures/gradients/5.jpg');
+
+ gradientTexture.minFilter = THREE.NearestFilter;
+ gradientTexture.magFilter = THREE.NearestFilter;
+ gradientTexture.generateMipmaps = false;
+
+/**
+ * Materials
+ */
+const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: baseTexture, alphaMap: alphaTexture, transparent: true, opacity: 0.5 });
+
+const normalMaterial = new THREE.MeshNormalMaterial({flatShading: true, side: THREE.DoubleSide});
+
+const matcatMaterial = new THREE.MeshMatcapMaterial();
+matcatMaterial.matcap = matcapTexture;
+
+const depthMaterial = new THREE.MeshDepthMaterial();
+
+const toneMaterial = new THREE.MeshToonMaterial({
+  side: THREE.DoubleSide,
+  color: "#eff000"
+});
+toneMaterial.gradientMap = gradientTexture;
+
+const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), toneMaterial);
+sphere.position.x = -1.5
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), toneMaterial);
+
+const torus = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.2, 16, 32), toneMaterial);
+torus.position.x = 1.5;
+group
+.add(sphere)
+.add(plane)
+.add(torus);
+
+//Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 0.5);
+pointLight.position.set(2,3,4);
+scene.add(pointLight);
+
+//Animation
+const clock = new THREE.Clock();
+const tick = () => {
+  rotateControl.update();
+  const elapsedTime = clock.getElapsedTime() * 0.5;
+  sphere.rotation.y = elapsedTime;
+  plane.rotation.y = elapsedTime;
+  torus.rotation.y = elapsedTime;
+  renderer.render(scene, camera);
+  window.requestAnimationFrame(tick);
+}
 
 tick();
