@@ -1,7 +1,7 @@
 import './style.css'
-import { AmbientLight, BoxGeometry, BufferAttribute, ConeGeometry, DirectionalLight, DoubleSide, Float32BufferAttribute, Fog, Group, HemisphereLight, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, PointLight, PointLightHelper, RectAreaLight, RepeatWrapping, Scene, SphereGeometry, SpotLight, SpotLightHelper, TextureLoader, TorusGeometry, WebGLRenderer } from "three";
+import { AmbientLight, BoxGeometry, CameraHelper, Clock, ConeGeometry, DirectionalLight, Float32BufferAttribute, Fog, Group, Mesh, MeshStandardMaterial, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, PointLight,  RepeatWrapping, Scene, SphereGeometry, TextureLoader, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper';
+
 
 //Config
 const size = {
@@ -30,8 +30,9 @@ control.update();
 
 //light
 const ambientLight = new AmbientLight('#b9d5ff', 0.12);
+
 scene.add(ambientLight);
-const moonLight = new DirectionalLight("b9d5ff", 0.12);
+const moonLight = new DirectionalLight("#b9d5ff", 0.52);
 moonLight.position.set(4, 5, -2);
 scene.add(moonLight);
 
@@ -42,6 +43,9 @@ doorLight.position.set(0, 2.2, 2.7);
 //Ghost
 const ghost1 = new PointLight('#ff00ff', 2, 3);
 scene.add(ghost1);
+
+const ghost2 = new PointLight('#00ff00', 2, 3);
+scene.add(ghost2);
 
 //Textures
 //Door
@@ -97,7 +101,6 @@ const planeGeometry = new PlaneGeometry(20, 20);
 const plane = new Mesh(planeGeometry, planeMaterial);
 planeGeometry.setAttribute("uv2", new Float32BufferAttribute(planeGeometry.attributes.uv.array, 2));
 plane.rotation.x = -Math.PI / 2;
-
 scene.add(plane);
 
 const house = new Group();
@@ -180,6 +183,7 @@ for (let i = 0; i < 50; i++) {
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
     const grave = new Mesh(graveGeometry, graveMaterial);
+    grave.castShadow = true;
     graves.add(grave);
     grave.position.set(x, plane.position.y + 0.01 + 0.4, z);
     grave.rotation.z = (Math.random() - 0.5) * 0.4;
@@ -194,6 +198,24 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
 renderer.setClearColor("#262837");
 
+//Shadows
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = PCFSoftShadowMap;
+moonLight.castShadow = true;
+doorLight.castShadow = true;
+ghost1.castShadow = true;
+ghost2.castShadow = true;
+
+plane.receiveShadow = true;
+
+wall.castShadow = true;
+bush1.castShadow = true;
+bush2.castShadow = true;
+bush3.castShadow = true;
+bush4.castShadow = true;
+
+
+
 //resize
 window.addEventListener("resize", () => {
     size.width = window.innerWidth;
@@ -204,7 +226,24 @@ window.addEventListener("resize", () => {
 })
 
 //RenderLoop
+const clock = new Clock();
 const tick = () => {
+    const elapsedTime = clock.getElapsedTime();
+    const ghostAngle = elapsedTime * 0.5;
+    const ghost2Angle = elapsedTime * 0.32;
+    ghost1.position.set(
+        Math.cos(ghostAngle) * 4,
+        Math.sin(ghostAngle) * 3,
+        Math.sin(ghostAngle) * 4
+
+    )
+
+    ghost2.position.set(
+        Math.cos(ghost2Angle) * 5,
+        Math.sin(ghost2Angle) * 4 + Math.sin(elapsedTime * 2.5),
+        Math.sin(ghost2Angle) * 5
+
+    )
     control.update();
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
