@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/cannon": "^0.1.8",
     "@types/dat.gui": "^0.7.7",
     "@types/three": "^0.144.0",
+    "cannon": "^0.6.2",
     "dat.gui": "^0.7.9",
     "gsap": "^3.11.3",
     "typescript": "^4.6.4",
