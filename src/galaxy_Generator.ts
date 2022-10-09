@@ -1,8 +1,8 @@
 import './style.css'
-import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, DirectionalLight, PerspectiveCamera, Points,  PointsMaterial, Scene, TextureLoader, WebGLRenderer } from "three";
+import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, PerspectiveCamera, Points,  PointsMaterial, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as dat from 'dat.gui';
-import { lerp } from 'three/src/math/MathUtils';
+
 
 //Config
 const size = {
@@ -30,9 +30,6 @@ const ambientLight = new AmbientLight(0xffffff, 0.8);
 scene.add(ambientLight);
 const directionLight = new DirectionalLight(0XFFFFFF, 1.0);
 scene.add(directionLight);
-
-//Textures
-const textureLoader = new TextureLoader();
 
 //Galaxy_Generator
 type galaxyParameter = {
@@ -165,7 +162,7 @@ window.addEventListener("resize", () => {
 })
 
 //RenderLoop
-const clock = new Clock();
+
 const tick = () => {
     control.update();
     renderer.render(scene, camera);

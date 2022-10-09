@@ -1,5 +1,5 @@
 import './style.css'
-import { AdditiveBlending, AmbientLight, BoxGeometry, BufferAttribute, BufferGeometry, CameraHelper, Clock, ConeGeometry, DirectionalLight, Float32BufferAttribute, Fog, Group, Mesh, MeshStandardMaterial, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, PointLight,  Points,  PointsMaterial,  RepeatWrapping, Scene, Sphere, SphereGeometry, TextureLoader, WebGLRenderer } from "three";
+import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Clock, DirectionalLight, PerspectiveCamera, Points,  PointsMaterial, Scene, TextureLoader, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 //Config
