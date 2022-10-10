@@ -1,6 +1,6 @@
 import './style.css'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { AmbientLight, AnimationMixer, Clock, CubeTextureLoader, DirectionalLight, Mesh, MeshStandardMaterial, PerspectiveCamera, PlaneGeometry, Scene, WebGLRenderer } from 'three';
+import { ACESFilmicToneMapping, AmbientLight, AnimationMixer, CineonToneMapping, Clock, CubeTextureLoader, DirectionalLight, LinearToneMapping, Mesh, MeshStandardMaterial, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, ReinhardToneMapping, Scene, sRGBEncoding, WebGLRenderer } from 'three';
 import { GLTFLoader  } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as dat from "dat.gui";
 
@@ -34,7 +34,10 @@ control.update();
 
 //Lights
 const directionLight = new DirectionalLight(0xffffff, 1.0);
-directionLight.position.set(0.25, 3, -2.25);
+directionLight.position.set(-4.695, 0.399, -2.2);
+directionLight.castShadow = true;
+directionLight.shadow.mapSize.set(1024, 1024);
+directionLight.shadow.camera.far = 15;
 scene.add(directionLight);
 
 //Environmnet map
@@ -52,7 +55,7 @@ scene.background = environmnetMap;
 //GUI
 const gui = new dat.GUI();
 const debugObject = {
-    envMapIntensity: 5
+    envMapIntensity: 3.123
 }
 
 gui.add(directionLight, 'intensity').min(0).max(10).step(0.001).name("lightIntensity");
@@ -65,6 +68,9 @@ const updateAllMaterials = () => {
         if (child instanceof Mesh && child.material && child.material instanceof MeshStandardMaterial) {
             child.material.envMap = environmnetMap;
             child.material.envMapIntensity = debugObject.envMapIntensity;
+            child.material.needsUpdate = true;
+            child.castShadow = true;
+            child.receiveShadow = true;
         }
     })
 }
@@ -94,13 +100,28 @@ window.addEventListener('resize', _=> {
 })
 
 //Renderer
-const renderer = new WebGLRenderer({canvas});
+const renderer = new WebGLRenderer({canvas, antialias: true});
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 //Physicallly
 renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = sRGBEncoding;
+renderer.toneMapping = ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = PCFSoftShadowMap;
 renderer.render(scene, camera);
+gui.add(renderer,'toneMapping', {
+    No: NoToneMapping,
+    Linear: LinearToneMapping,
+    Reinhard: ReinhardToneMapping,
+    Cineon: CineonToneMapping,
+    ACESFilmic: ACESFilmicToneMapping
+}).onFinishChange(() => {
+    renderer.toneMapping = Number(renderer.toneMapping);
+})
 
+gui.add(renderer, 'toneMappingExposure').min(0).max(10);
 //RenderLoop
 const clock = new Clock();
 const tick = () => {
