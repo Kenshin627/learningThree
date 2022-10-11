@@ -14,6 +14,7 @@ export class Renderer {
         const viewport = this.engine.viewport as Viewport;
         this.instance.setSize(viewport.width, viewport.height);
         this.instance.setPixelRatio(viewport.pixelRatio);
+        this.instance.setClearColor("#303030");
         //Physically
         this.instance.physicallyCorrectLights = true;
         this.instance.outputEncoding = sRGBEncoding;
