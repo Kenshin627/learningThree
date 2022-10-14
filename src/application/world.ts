@@ -3,6 +3,8 @@ import { Engine } from "./engine";
 import { Environment } from "./Environment";
 import vertexShader from './shaders/base/vertex.glsl?raw';
 import fragmentShader from './shaders/base/fragment.glsl?raw';
+import patternVertex from './shaders/pattern/vertex.glsl?raw';
+import patternFragment from './shaders/pattern/fragment.glsl?raw';
 import * as dat from 'dat.gui';
 
 export class World {
@@ -11,12 +13,22 @@ export class World {
     public animationMixer: any;
     constructor() {
         this.engine = new Engine();
+        /**
+         * 1.
+         */
         // this.engine.resources?.on('ready', () => {
         //     this.buildFloor();
         //     this.loadModel();
         //     this.environment = new Environment();
         // })
-        this.build()
+        /**
+         * 2.
+         */
+        // this.build();
+        /**
+         * 3.
+         */
+        this.pattern();
     }
 
     buildFloor() {
@@ -110,5 +122,15 @@ export class World {
         const gui = new dat.GUI();
         gui.add(material.uniforms.uFrequency.value, 'x').min(1).max(20).step(1).name("x-frequency");
         gui.add(material.uniforms.uFrequency.value, 'y').min(1).max(20).step(1).name('y-frequency');
+    }
+
+    pattern() {
+        const planGeometry = new PlaneGeometry(1, 1, 32, 32);
+        const material = new RawShaderMaterial({
+            vertexShader:patternVertex,
+            fragmentShader: patternFragment
+        })
+        const mesh = new Mesh(planGeometry, material);
+        this.engine.scene?.add(mesh);
     }
 }
