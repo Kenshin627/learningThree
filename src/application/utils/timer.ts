@@ -17,7 +17,7 @@ export class Timer extends EventEmiter {
         const deltaTime = currentTime - this.lastTime;
         this.elaspedTime = currentTime - this.start;
         this.lastTime = currentTime;
-        this.emit('tick', deltaTime);
+        this.emit('tick', deltaTime, this.elaspedTime);
         requestAnimationFrame(() => {
             this.tick();
         })

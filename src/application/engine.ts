@@ -12,7 +12,7 @@ export class Engine {
     public camera;
     public renderer;
     public dom;
-    private timer;
+    public timer;
     constructor() {
         if (instance) {
             return instance;
