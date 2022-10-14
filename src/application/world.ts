@@ -1,4 +1,4 @@
-import { BoxGeometry, BufferAttribute, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, RawShaderMaterial, Scene, TextureLoader, Vector2 } from "three";
+import { BufferAttribute, DoubleSide, Mesh, PlaneGeometry, RawShaderMaterial, TextureLoader, Vector2 } from "three";
 import { Engine } from "./engine";
 import vertexShader from './shaders/base/vertex.glsl?raw';
 import fragmentShader from './shaders/base/fragment.glsl?raw';
