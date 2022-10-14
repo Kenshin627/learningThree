@@ -11,11 +11,12 @@ export class World {
     public animationMixer: any;
     constructor() {
         this.engine = new Engine();
-        this.engine.resources?.on('ready', () => {
-            this.buildFloor();
-            this.loadModel();
-            this.environment = new Environment();
-        })
+        // this.engine.resources?.on('ready', () => {
+        //     this.buildFloor();
+        //     this.loadModel();
+        //     this.environment = new Environment();
+        // })
+        this.build()
     }
 
     buildFloor() {
