@@ -3,6 +3,9 @@ import { Timer } from "./utils/timer";
 import { Viewport } from "./viewport";
 import { Camera } from './camera';
 import { Renderer } from "./renderer";
+import { Resource } from "./utils/resources";
+import { sources } from "./assets/sources";
+import { World } from './world';
 
 let instance: Engine;
 
@@ -13,6 +16,8 @@ export class Engine {
     public renderer;
     public dom;
     public timer;
+    public resources;
+    public world;
     constructor() {
         if (instance) {
             return instance;
@@ -33,17 +38,17 @@ export class Engine {
         this.renderer = new Renderer();
         
         this.timer = new Timer();
-        this.timer.on('tick', () => {
-            this.renderLoop();
-        })
-        
-        
+        this.timer.on('tick', (delta: number, elapsed: number) => {
+            this.renderLoop(delta);
+        }) 
+
+        this.resources = new Resource(sources);
+        this.world = new World();
     }
 
-    private renderLoop() {
-        console.log(`tick`);
-        
+    private renderLoop(delta: number) {        
         this.camera?.update();
+        (this.world as World).update(delta);
         this.renderer?.update();
     }
 

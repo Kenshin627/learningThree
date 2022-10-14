@@ -1,5 +1,6 @@
-import { World } from "./application/world";
+import { Engine } from "./application/engine";
 import './style.css'
 
-const wolrd = new World();
-wolrd.build();
+const engine = new Engine();
+
+// wolrd.build();
