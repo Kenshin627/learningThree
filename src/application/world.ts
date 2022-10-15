@@ -1,4 +1,4 @@
-import { BufferAttribute, CircleGeometry, Mesh, MeshStandardMaterial, RepeatWrapping, sRGBEncoding, AnimationMixer, PlaneGeometry, TextureLoader, RawShaderMaterial, DoubleSide, Vector2, Vector3 } from "three";
+import { BufferAttribute, CircleGeometry, Mesh, MeshStandardMaterial, RepeatWrapping, sRGBEncoding, AnimationMixer, PlaneGeometry, TextureLoader, RawShaderMaterial, DoubleSide, Vector2, Vector3, Color } from "three";
 import { Engine } from "./engine";
 import vertexShader from './shaders/base/vertex.glsl?raw';
 import fragmentShader from './shaders/base/fragment.glsl?raw';
@@ -141,23 +141,58 @@ export class World {
     }
 
     ragingSea() {
-        const seaGeometry = new PlaneGeometry(1, 1, 32, 32);
+        //debugObject
+        const debugObject = {
+            depthColor: '#186691',
+            surfaceColor: '#9bd8ff'
+        }
+        const seaGeometry = new PlaneGeometry(2, 2, 512, 512);
         const material = new RawShaderMaterial({
             vertexShader: seaVertex,
             fragmentShader: seaFragment,
             uniforms: {
-                u_color: { value: new Vector3(0.2, 0.3, 0.8) },
-                u_xFrequency: { value: 10 },
-                u_yFrequency: {value: 10},
-                u_time: { value: 0 }
+                u_bigWaveElevation: { value: 0.2 },
+                u_bigWaveFrequency: { value: new Vector2(4, 1.5) },
+                u_BigWaveSpeed: { value: 0.575},
+
+                u_time: { value: 0 },
+
+                depthColor: { value: new Color(debugObject.depthColor) },
+                surfaceColor: { value: new Color(debugObject.surfaceColor) },
+                u_coloroffset: { value: 0.08 },
+                u_colorMultiplier: { value: 5 },
+
+                u_smallWavesElevation: { value: 0.15 },
+                u_smallWavesFrequency: { value: 3. },
+                u_smallWavesSpeed: { value: 0.2 },
+                u_smallWavesiterations: { value: 4.0 }                
             }
         })
 
         const sea = new Mesh(seaGeometry, material);
-
+        sea.rotation.x = -Math.PI / 2.0;
         this.engine.timer?.on("tick", (_: number, time: number) => {
-            material.uniforms.u_time.value = time / 1000;
+            material.uniforms.u_time.value = time / 1000 ;
         })
         this.engine.scene?.add(sea);
+
+        //gui 
+        const gui = new dat.GUI();
+        gui.add(material.uniforms.u_bigWaveElevation, "value").min(0).max(1).step(0.001).name("bigWaveElevation");
+        gui.add(material.uniforms.u_bigWaveFrequency.value, "x").min(0).max(10).step(0.01).name("frequencyX");
+        gui.add(material.uniforms.u_bigWaveFrequency.value, "y").min(0).max(10).step(0.01).name("frequencyY");
+        gui.add(material.uniforms.u_BigWaveSpeed, "value").min(0).max(4).step(0.001).name("waveSpeed");
+        gui.addColor(debugObject, "depthColor").name("depthColor").onChange(() => {
+            material.uniforms.depthColor.value.set(debugObject.depthColor);
+        });
+        gui.addColor(debugObject, "surfaceColor").name("surfaceColor").onChange(() => {
+            material.uniforms.surfaceColor.value.set(debugObject.surfaceColor);
+        });
+        gui.add(material.uniforms.u_coloroffset, "value").min(0).max(1).step(0.001).name("colorOffset");
+        gui.add(material.uniforms.u_colorMultiplier, "value").min(0).max(5).step(0.001).name("colorMultiplier");
+        gui.add(material.uniforms.u_smallWavesElevation, "value").min(0).max(1).step(0.001).name("smallWavesElevation");
+        gui.add(material.uniforms.u_smallWavesFrequency, "value").min(1).max(10).step(0.01).name("smallWavesFrequency");
+        gui.add(material.uniforms.u_smallWavesSpeed, "value").min(0).max(1).step(0.001).name("smallWavesSpeed");
+        gui.add(material.uniforms.u_smallWavesiterations, "value").min(1).max(20).step(1).name("smallWavesiterations");
     }
 }

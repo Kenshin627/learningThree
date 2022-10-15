@@ -1,11 +1,15 @@
 #version 300 es
 precision mediump float;
-// in vec3 v_color;
-in vec2 v_uv;
-uniform vec3 u_color;
-out vec4 outColor;
+uniform vec3 depthColor;
+uniform vec3 surfaceColor;
+uniform float u_coloroffset;
+uniform float u_colorMultiplier;
+
+out vec4 fragColor;
+in float v_elevation;
 
 void main() {
-
-    outColor = vec4(u_color, 1.0);
+    float mixStrength = (v_elevation + u_coloroffset) * u_colorMultiplier;
+    vec3 mixColor = mix(depthColor, surfaceColor, mixStrength);
+    fragColor = vec4(mixColor, 1.0);
 }
