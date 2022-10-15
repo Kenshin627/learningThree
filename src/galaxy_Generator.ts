@@ -1,7 +1,9 @@
 import './style.css'
-import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, PerspectiveCamera, Points,  PointsMaterial, Scene, WebGLRenderer } from "three";
+import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, DirectionalLight, PerspectiveCamera, Points,  PointsMaterial, RawShaderMaterial, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as dat from 'dat.gui';
+import galaxyVertex from './application/shaders/galaxy/vertex.glsl?raw';
+import galaxyFragment from './application/shaders/galaxy/fragment.glsl?raw';
 
 
 //Config
@@ -33,24 +35,23 @@ scene.add(directionLight);
 
 //Galaxy_Generator
 type galaxyParameter = {
-    count: number,
-    size: number,
-    branch: number,
-    radius: number,
-    spin: number,
-    randomness: number,
-    randomPower: number,
-    innerColor: string,
-    outterColor: string
+    count: number;
+    size: number;
+    branch: number;
+    radius: number;
+    spin: number;
+    randomness: number;
+    randomPower: number;
+    innerColor: string;
+    outterColor: string;
+    speed: number;
 }
-
+let particleGeometry: BufferGeometry;
+let particleMaterial: RawShaderMaterial;
 const Galaxy_Generator = () => {
     //Varibles
-    let particleGeometry: BufferGeometry;
-    let particleMaterial: PointsMaterial;
-    let points: Points;
-    const attrCount = 3;
-    
+
+    let points: Points; 
     return (options: galaxyParameter) => {
         //dispsoe
         if (particleGeometry) {
@@ -66,30 +67,30 @@ const Galaxy_Generator = () => {
         /**
          * Geometry
          */
-        const { branch, radius: r, spin, randomness, randomPower, innerColor, outterColor } = options;
+        const { branch, radius: r, randomness, randomPower, innerColor, outterColor, count } = options;
         const centerColor = new Color(innerColor);
         const outColor = new Color(outterColor);
         particleGeometry = new BufferGeometry();
-        const positionArray = new Float32Array(options.count * 3);
-        const colors = new Float32Array(options.count * 3);
+        const positionArray = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        const aScale = new Float32Array(count * 1);
+        const aRandomness = new Float32Array(count * 3);
         const circle = Math.PI * 2;
-        const branchAngle = circle / options.branch;
-        for (let i = 0; i < options.count; i++) {
+        const branchAngle = circle / branch;
+        for (let i = 0; i < count; i++) {
 
             //Position
-            const i3 = i * attrCount;
+            const i3 = i * 3;
             const radius = Math.random() * r;  
             const branchNo = i % branch;
-            const spinAngle = spin * radius;
-            const multply = branchNo * branchAngle;  
+            const cBranchAngle = branchNo * branchAngle;  
 
-            const randomX = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5? 1: -1) * randomness;
-            const randomY = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5? 1: -1) * randomness;
-            const randomZ = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5? 1: -1) * randomness;
+            positionArray[i3 + 0] = Math.cos(cBranchAngle) * radius;
+            positionArray[i3 + 2] = Math.sin(cBranchAngle) * radius;
+            positionArray[i3 + 1] = 0;
 
-            positionArray[i3 + 0] = Math.cos(multply + spinAngle) * radius + randomX;
-            positionArray[i3 + 2] = Math.sin(multply + spinAngle) * radius + randomZ;
-            positionArray[i3 + 1] = randomY;
+            //Scale
+            aScale[i] = Math.random();
 
             //Color
             let mixColor = centerColor.clone();
@@ -97,19 +98,36 @@ const Galaxy_Generator = () => {
             colors[i3 + 0] = mixColor.r;
             colors[i3 + 1] = mixColor.g;
             colors[i3 + 2] = mixColor.b;
+
+            //Randomness
+            const randomX = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5? 1: -1) * randomness * radius;
+            const randomY = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5? 1: -1) * randomness * radius;
+            const randomZ = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5? 1: -1) * randomness * radius;
+            aRandomness[i3 + 0] = randomX;
+            aRandomness[i3 + 1] = randomY;
+            aRandomness[i3 + 2] = randomZ;
         }
-        particleGeometry.setAttribute("position", new BufferAttribute(positionArray, attrCount));
+        
+        particleGeometry.setAttribute("position", new BufferAttribute(positionArray, 3));
         particleGeometry.setAttribute("color", new BufferAttribute(colors, 3));
+        particleGeometry.setAttribute("aScale", new BufferAttribute(aScale, 1));
+        particleGeometry.setAttribute("aRandomness", new BufferAttribute(aRandomness, 3));
+
 
         /**
          * Material
          */
-        particleMaterial = new PointsMaterial({
-            size: options.size,
-            sizeAttenuation: true,
+        particleMaterial = new RawShaderMaterial({
+            vertexShader: galaxyVertex,
+            fragmentShader: galaxyFragment,
             depthWrite: false,
             blending: AdditiveBlending,
-            vertexColors: true
+            vertexColors: true,
+            uniforms: {
+                uSize: { value: 20 * renderer.getPixelRatio() },
+                uTime: { value: 0 },
+                speed: { value: params.speed }
+            }
         })
 
         /**
@@ -121,27 +139,28 @@ const Galaxy_Generator = () => {
 };
 
 let params: galaxyParameter = {
-    count: 627700,
-    size: 0.001,
+    count: 200000,
+    size: 0.005,
     branch: 3,
-    radius: 10,
-    spin: 1.27,
-    randomness: 0.6538,
-    randomPower: 1.8,
-    innerColor: '#ff9130',
-    outterColor: '#682d9d'
+    radius: 5,
+    spin: 1,
+    randomness: 0.2,
+    randomPower: 3,
+    speed: 0.35,
+    innerColor: '#ff6030',
+    outterColor: '#1b3984'
 };
 const genarator = Galaxy_Generator();
-genarator(params);
+
 //GUI
 const gui = new dat.GUI();
 gui.add(params, 'count').min(100).max(1000000).step(100).onFinishChange(genarator.bind(this, params));
-gui.add(params, 'size').min(0.001).max(0.1).step(0.001).onFinishChange(genarator.bind(this, params));
 gui.add(params, 'branch').min(2).max(20).step(1).onFinishChange(genarator.bind(this, params));
 gui.add(params, 'radius').min(2).max(10).step(1).onFinishChange(genarator.bind(this, params));
-gui.add(params, 'spin').min(1).max(2).step(0.01).onFinishChange(genarator.bind(this, params));
+
 gui.add(params, 'randomness').min(0).max(2).step(0.001).onFinishChange(genarator.bind(this, params));
 gui.add(params, 'randomPower').min(1).max(10).step(0.1).onFinishChange(genarator.bind(this, params));
+gui.add(params, 'speed').min(0.1).max(1).step(0.001).onFinishChange(genarator.bind(this, params));
 gui.addColor(params,'innerColor').onFinishChange(genarator.bind(this, params));
 gui.addColor(params, 'outterColor').onFinishChange(genarator.bind(this, params));
 
@@ -151,6 +170,8 @@ const renderer = new WebGLRenderer({canvas});
 renderer.setSize(size.width, size.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.render(scene, camera);
+
+genarator(params);
 
 //Resize
 window.addEventListener("resize", () => {
@@ -163,8 +184,12 @@ window.addEventListener("resize", () => {
 
 //RenderLoop
 
+const clock = new Clock();
+
 const tick = () => {
     control.update();
+    let elapsedTime = clock.getElapsedTime();
+    particleMaterial.uniforms.uTime.value = elapsedTime;
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
 }
