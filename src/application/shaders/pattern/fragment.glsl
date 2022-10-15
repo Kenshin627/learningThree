@@ -132,7 +132,85 @@ void main() {
     // gl_FragColor = vec4(vec3(strength), 1.0);
 
     //Pattern 34
-    vec2 center = vec2(0.5);
-    float strength = step(abs(distance(v_uv, center) - 0.25), 0.25);
-    gl_FragColor = vec4(vec3(strength), 1.0);
+    // vec2 center = vec2(0.5);
+    // float strength = step(0.01, abs(distance(v_uv, center) - 0.25));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 35
+    // vec2 center = vec2(0.5, 0.5);
+    // float strength = 1.0 - smoothstep(0.01, 0.005 + 0.01, abs(distance(v_uv, center) - 0.25));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 36
+    // vec2 center = vec2(0.5);
+    // vec2 uv = vec2(
+    //     v_uv.x,
+    //     v_uv.y + sin(30.0 * v_uv.x) * 0.1
+    // );
+    // float strength = 1.0 - smoothstep(0.01, 0.01 + 0.005, abs(distance(uv, center) - 0.25));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 37
+    // vec2 center = vec2(0.5);
+    // vec2 uv = vec2(
+    //     v_uv.x + sin(v_uv.y * 30.) * 0.1,
+    //     v_uv.y + sin(v_uv.x * 30.) * 0.1
+    // );
+
+    // float strength = 1.0 - smoothstep(0.01, 0.01 + 0.005, abs(distance(uv, center) - 0.25));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 38
+    // vec2 center = vec2(0.5);
+    // vec2 uv = vec2(
+    //     v_uv.x + sin(v_uv.y * 100.0) * 0.1,
+    //     v_uv.y + sin(v_uv.x * 100.0) * 0.1
+    // );
+
+    // float strength = 1.0 - smoothstep(0.01, 0.01 + 0.005, abs(distance(uv, center) - 0.25));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 39
+    // float strength = dot(normalize(v_uv), vec2(1.0, 0));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 40
+    // float angle = atan(v_uv.x - 0.5, v_uv.y - 0.5);
+    // float  strength = angle;
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 41
+    // float angle = atan(v_uv.x - 0.5, v_uv.y - 0.5);
+    // float strength = (angle + 1.) / (PI * 2.0);
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 42
+    // float angle = atan(v_uv.x - 0.5, v_uv.y - 0.5);
+    // angle /= PI * 2.0;
+    // angle += 0.5;
+    // angle *= 20.;
+    // angle = mod(angle, 1.0);
+    // float strength = angle;
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 43
+    // float angle = atan(v_uv.x - 0.5, v_uv.y - 0.5);
+    // angle /= PI * 2.0;
+    // angle += 0.5;
+    // float strength = sin(angle* 100.0);
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 44
+    // vec2 center = vec2(0.5);
+    // float radius = 0.25;
+    // float angle = atan(v_uv.x - center.x, v_uv.y - center.y);
+    // angle /= PI * 2.0;
+    // angle += 0.5;
+    // float sinusoid = sin(angle * 100.);
+    // radius += sinusoid * 0.02;
+    // float strength = 1.0 - smoothstep(0.01, 0.01 + 0.005, abs(distance(v_uv, center) - radius));
+    // gl_FragColor = vec4(vec3(strength), 1.0);
+
+    //Pattern 45
+    
 }
