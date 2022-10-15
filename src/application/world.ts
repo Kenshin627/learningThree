@@ -1,10 +1,11 @@
-import { BufferAttribute, CircleGeometry, Mesh, MeshStandardMaterial, RepeatWrapping, sRGBEncoding, AnimationMixer, PlaneGeometry, TextureLoader, RawShaderMaterial, DoubleSide, Vector2 } from "three";
+import { BufferAttribute, CircleGeometry, Mesh, MeshStandardMaterial, RepeatWrapping, sRGBEncoding, AnimationMixer, PlaneGeometry, TextureLoader, RawShaderMaterial, DoubleSide, Vector2, Vector3 } from "three";
 import { Engine } from "./engine";
-import { Environment } from "./Environment";
 import vertexShader from './shaders/base/vertex.glsl?raw';
 import fragmentShader from './shaders/base/fragment.glsl?raw';
 import patternVertex from './shaders/pattern/vertex.glsl?raw';
 import patternFragment from './shaders/pattern/fragment.glsl?raw';
+import seaVertex from './shaders/ragingSea/vertex.glsl?raw';
+import seaFragment from './shaders/ragingSea/fragment.glsl?raw';
 import * as dat from 'dat.gui';
 
 export class World {
@@ -28,7 +29,12 @@ export class World {
         /**
          * 3.
          */
-        this.pattern();
+        // this.pattern();
+
+        /**
+         * Raging Sea
+         */
+        this.ragingSea();
     }
 
     buildFloor() {
@@ -132,5 +138,26 @@ export class World {
         })
         const mesh = new Mesh(planGeometry, material);
         this.engine.scene?.add(mesh);
+    }
+
+    ragingSea() {
+        const seaGeometry = new PlaneGeometry(1, 1, 32, 32);
+        const material = new RawShaderMaterial({
+            vertexShader: seaVertex,
+            fragmentShader: seaFragment,
+            uniforms: {
+                u_color: { value: new Vector3(0.2, 0.3, 0.8) },
+                u_xFrequency: { value: 10 },
+                u_yFrequency: {value: 10},
+                u_time: { value: 0 }
+            }
+        })
+
+        const sea = new Mesh(seaGeometry, material);
+
+        this.engine.timer?.on("tick", (_: number, time: number) => {
+            material.uniforms.u_time.value = time / 1000;
+        })
+        this.engine.scene?.add(sea);
     }
 }
