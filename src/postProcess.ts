@@ -10,6 +10,10 @@ import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader';
 
 import rgbShiftVertex from './application/shaders/rgbShift/vertex.glsl?raw';
 import rgbShiftFragment from './application/shaders/rgbShift/fragment.glsl?raw';
+
+import displacementVertex from './application/shaders/displacement/vertex.glsl?raw';
+import displacementFragment from './application/shaders/displacement/fragment.glsl?raw';
+
 import { GLTFLoader  } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as dat from "dat.gui";
 
@@ -169,17 +173,36 @@ const shader = {
     fragmentShader: rgbShiftFragment
 }
 const customPass = new ShaderPass(shader);
+customPass.enabled = false;
 composer.addPass(customPass);
+
+//DisplaceMent
+const displaceShader = {
+    uniforms: {
+        tDiffuse: { value: null },
+        uTime: { value: 0 }
+    },
+    vertexShader: displacementVertex,
+    fragmentShader: displacementFragment
+}
+
+const displacementPass = new ShaderPass(displaceShader);
+displacementPass.enabled = true;
+composer.addPass(displacementPass);
+
 
 //RenderLoop
 const clock = new Clock();
 const tick = () => {
-    let elaspedTime = clock.getDelta();
+    let deltaTime = clock.getDelta();
+    let elapsedTime = clock.getElapsedTime();
     if (animationMixer) {
-        animationMixer.update(elaspedTime)
+        animationMixer.update(deltaTime)
     }
     control.update();
     // renderer.render(scene, camera);
+    // displaceShader.uniforms.uTime.value = elaspedTime;
+    displacementPass.material.uniforms.uTime.value = elapsedTime;
     composer.render();
     requestAnimationFrame(tick);
 }
