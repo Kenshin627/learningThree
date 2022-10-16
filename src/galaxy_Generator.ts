@@ -1,5 +1,5 @@
 import './style.css'
-import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, DirectionalLight, PerspectiveCamera, Points,  PointsMaterial, RawShaderMaterial, Scene, WebGLRenderer } from "three";
+import { AdditiveBlending, AmbientLight, BufferAttribute, BufferGeometry, Clock, Color, DirectionalLight, PerspectiveCamera, Points, RawShaderMaterial, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as dat from 'dat.gui';
 import galaxyVertex from './application/shaders/galaxy/vertex.glsl?raw';
