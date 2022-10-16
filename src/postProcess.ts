@@ -1,6 +1,6 @@
 import './style.css'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { ACESFilmicToneMapping, AnimationMixer, CineonToneMapping, Clock, CubeTextureLoader, DirectionalLight, LinearFilter, LinearToneMapping, Mesh, MeshStandardMaterial, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, ReinhardToneMapping, RGBAFormat, Scene, sRGBEncoding, WebGLRenderer, WebGLRenderTarget } from 'three';
+import { ACESFilmicToneMapping, AnimationMixer, CineonToneMapping, Clock, CubeTextureLoader, DirectionalLight, LinearFilter, LinearToneMapping, Mesh, MeshStandardMaterial, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, ReinhardToneMapping, RGBAFormat, Scene, sRGBEncoding, TextureLoader, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass';
@@ -13,6 +13,9 @@ import rgbShiftFragment from './application/shaders/rgbShift/fragment.glsl?raw';
 
 import displacementVertex from './application/shaders/displacement/vertex.glsl?raw';
 import displacementFragment from './application/shaders/displacement/fragment.glsl?raw';
+
+import normalMapVertex from './application/shaders/normalMapPass/vertex.glsl?raw';
+import normalMapFragment from './application/shaders/normalMapPass/fragment.glsl?raw';
 
 import { GLTFLoader  } from 'three/examples/jsm/loaders/GLTFLoader'
 import * as dat from "dat.gui";
@@ -187,9 +190,24 @@ const displaceShader = {
 }
 
 const displacementPass = new ShaderPass(displaceShader);
-displacementPass.enabled = true;
+displacementPass.enabled = false;
 composer.addPass(displacementPass);
 
+//InterfaceNormalMap
+const normalMapShader = {
+    uniforms: {
+        tDiffuse: { value: null },
+        normalMap: { value: null }
+    },
+    vertexShader: normalMapVertex,
+    fragmentShader: normalMapFragment
+}
+
+const normalMapPass = new ShaderPass(normalMapShader);
+const textureLoader = new TextureLoader();
+normalMapPass.material.uniforms.normalMap.value = textureLoader.load("/assets/textures/interfaceNormalMap.png");
+normalMapPass.enabled = true;
+composer.addPass(normalMapPass);
 
 //RenderLoop
 const clock = new Clock();
