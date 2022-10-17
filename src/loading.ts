@@ -1,8 +1,11 @@
 import './style.css'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { ACESFilmicToneMapping, AnimationMixer, CineonToneMapping, Clock, CubeTextureLoader, DirectionalLight, LinearToneMapping, Mesh, MeshStandardMaterial, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, ReinhardToneMapping, Scene, sRGBEncoding, WebGLRenderer } from 'three';
-import { GLTFLoader  } from 'three/examples/jsm/loaders/GLTFLoader'
+import { ACESFilmicToneMapping, AnimationMixer, CineonToneMapping, Clock, CubeTextureLoader, DirectionalLight, LinearToneMapping, LoadingManager, Mesh, MeshStandardMaterial, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, ReinhardToneMapping, Scene, ShaderMaterial, sRGBEncoding, WebGLRenderer } from 'three';
+import loadingVertex from './application/shaders/overLay/vertex.glsl?raw';
+import loadingFragment from './application/shaders/overLay/fragment.glsl?raw';
+import { GLTFLoader  } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as dat from "dat.gui";
+import gsap from 'gsap';
 
 //Config
 const size = {
@@ -13,10 +16,28 @@ const size = {
 
 
 //Loaders
-const gltfLoader = new GLTFLoader();
-const cubeTextureLoader = new CubeTextureLoader();
+const loadingBarElement = document.querySelector(".loading-bar") as Element;
+const loadingManager = new LoadingManager(
+    () => {
+        setTimeout(() => {
+            console.log(`loaded`);  
+            gsap.to(overLayMaterial.uniforms.uAlpha, { duration: 3, value: 0 })
+            loadingBarElement.classList.add(`ended`);   
+            (loadingBarElement as any).style.transform = ``;
+        }, 500)   
+    },
+    (_, itemLoaded, itemTotal) => {
+        let progress = itemLoaded / itemTotal;
+        (loadingBarElement as any).style.transform = `scaleX(${progress})`;
+    },
+    () => {
+        console.log(`error`);        
+    })
 
+const gltfLoader = new GLTFLoader(loadingManager);
+const cubeTextureLoader = new CubeTextureLoader(loadingManager);
 
+ 
 const canvas = document.querySelector("#container") as HTMLCanvasElement;
 
 //Scene
@@ -122,6 +143,21 @@ gui.add(renderer,'toneMapping', {
 })
 
 gui.add(renderer, 'toneMappingExposure').min(0).max(10);
+
+//OverLay
+const overLayGeometry = new PlaneGeometry(2, 2, 1, 1);
+const overLayMaterial = new ShaderMaterial({
+    uniforms: {
+        uAlpha: { value: 1.0 }
+    },
+    vertexShader: loadingVertex,
+    fragmentShader: loadingFragment,
+    // wireframe: true
+    transparent: true
+})
+const overLayMesh = new Mesh(overLayGeometry, overLayMaterial);
+scene.add(overLayMesh);
+
 //RenderLoop
 const clock = new Clock();
 const tick = () => {
